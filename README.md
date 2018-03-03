@@ -16,9 +16,9 @@ ss-ssr-gadget
 支持批量去重、查错，备份处理 json 格式的 ssr 账户文件，包括 gui-config.json 和以列表-字典方式存储的 json 账户文件。
 用法：
 
-* $py ssr_dup_remover.py -j #输入文件选项。后接 json 或 ssr gui-config.json 文件。支持混合多个文件输入。生成 "de_Dup_时间戳.json" 的去重文件，和 "Dup_时间戳.json" 的重复内容备份文件。如果没有输入-j 和 -o 文件参数，此命令会在当前目录下寻找名为 "gui-config.json" 的文件进行处理
-* $py ssr_dup_remover.py -o #指定模板选项。读取你正在使用的 ssr 配置文件，使用此参数，要配合 -j 同时使用，用来指定你已经在使用的 ssr gui-config.json 文件，这样将生成一个**替换掉**其中所有账户，而不修改其他配置，名为 "de_Dup_时间戳_gui-config.json" 的新配置文件，可以将其复制到 ssr 目录，重命名为 "gui-config.json" 即可使用。重复的账户将如前所述，生成名为 "Dup_时间戳.json 备份文件。
-* $py ssr_dup_remover.py -t #设置 -t 后只测试，不输出任何文件。
+* $py ssr_dup_remover.py -j #输入文件选项。后接 json 或 ssr gui-config.json 文件。支持混合多个文件输入。生成 "de_Dup_时间戳.json" 的去重文件，和 "Dup_时间戳.json" 的重复账号备份文件。如果没有输入-j 和 -o 文件参数，此命令会在当前目录下寻找名为 "gui-config.json" 的文件进行处理
+* $py ssr_dup_remover.py -o #指定模板选项。读取你正在使用的 ssr 配置文件，使用此参数，要配合 -j 同时使用，用来指定你已经在使用的 ssr gui-config.json 文件，这样将生成一个**替换掉**其中所有账户，而不修改其他配置，名为 "de_Dup_时间戳_gui-config.json" 的新配置文件，可以将其复制到 ssr 目录，重命名为 "gui-config.json" 即可使用。重复的账户将如前所述，生成名为 "Dup_时间戳.json 备份文件
+* $py ssr_dup_remover.py -t #设置 -t 后只测试，不输出任何文件
 
 **建议用法**：将工具放置在 ssr 工作目录，无参数运行，"$py ssr_dup_remover.py" 即可生成去重后的配置文件。备份或删除、重命名替换掉原来的配置文件 "gui-config.json" 即可应用。请注意**备份原配置文件**。
 如果处理多个输入文件，必须 -j 和 -o （用来指定你现在使用的ssr配置文件）联合使用，才会生成 gui-config.json 配置文件，单独的 -j 只会生成去重的备份 json 文件 -- 这个文件不能直接作为 ssr 配置文件应用。
