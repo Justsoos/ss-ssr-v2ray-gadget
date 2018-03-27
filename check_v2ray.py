@@ -87,7 +87,7 @@ def run_v(conf, t_conf):
 					}
 				}
 
-			t_conf['outbound']['streamSettings']['kcpSettings']['header']['type']	= (conf.get('headerType'), 'none')[conf.get('headerType') == 'none']
+			t_conf['outbound']['streamSettings']['kcpSettings']['header']['type'] = (conf.get('headerType'), 'none')[conf.get('headerType') == 'none']
 
 		elif network == 'tcp':
 			t_conf['outbound']['streamSettings']['tcpSettings'] = \
@@ -294,6 +294,7 @@ def multi_proc(configs):
 	return configs_good, configs_bad, info
 
 def read_deDup(conf):
+
 	if conf:
 		file = conf
 	else:
@@ -333,10 +334,8 @@ def read_deDup(conf):
 	except KeyError as err:
 		print('The No.{} record seems wrong with {}...'.format((i+j), err))
 		raise
-	print('**** All records: ', len(vmess))
-	print('found dups: ', len(dup_list))
-	print('remain records: ', len(dest_list))
-	return data, dest_list, dup_list
+	deDup_info = '**** All records: {}, found dups: {}, unique records: {}'.format(len(vmess), len(dup_list), len(dest_list))
+	return data, dest_list, dup_list, deDup_info
 
 def get_free_tcp_port():
 	tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -385,7 +384,7 @@ def main():
 			'protocol': 'socks',
 			'settings': {
 				'auth': 'noauth',
-				'udp': True,
+				'udp': False,
 				'ip': '127.0.0.1',
 				'clients': None
 			},
@@ -480,12 +479,10 @@ def main():
 		}
 	}
 	
-	#t_conf = json.loads(t_conf)
-
-	guiNConfig, conf, _ = read_deDup(None)
+	guiNConfig, conf, _, deDup_info = read_deDup(None)
 	
 	# conf = conf[:5]
-	# conf = conf_l
+
 	configs_good, configs_bad, _ = multi_proc(conf)
 
 	kill()
@@ -496,8 +493,11 @@ def main():
 	if configs_bad:
 		all_list.extend(configs_bad)
 
+	if deDup_info:
+		print(deDup_info)
+
 	if only_test:
-		print('deDup {} records. good ones {}, bad ones {}.'.format(len(all_list), len(configs_good), len(configs_bad)))
+		print('deDuped records {}, good ones {}, bad ones {}.'.format(len(all_list), len(configs_good), len(configs_bad)))
 	else:
 		guiNConfig['vmess'] = all_list
 		guiNConfig_new = 'guiNConfig_{}_.json'.format(time.strftime('%Y-%m-%d_%H-%M-%S'))
@@ -511,4 +511,5 @@ if __name__ == '__main__':
 	main()
 	run_end = time.time()
 	duration = run_end - run_start
-	print('Cost time: ', duration)
+	m, s = divmod(duration, 60)
+	print('Cost time: {:.0f} mins {:.0f} seconds. '.format(m, s))
