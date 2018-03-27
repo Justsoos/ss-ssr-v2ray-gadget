@@ -1,4 +1,4 @@
-ss-ssr-gadget
+ss-ssr-v2ray-gadget
 =======================
 ## ss2ssr.py 工具
 
@@ -22,6 +22,15 @@ ss-ssr-gadget
 
 **建议用法**：将工具放置在 ssr 工作目录，无参数运行，"$py ssr_dup_remover.py" 即可生成去重后的配置文件。备份或删除、重命名替换掉原来的配置文件 "gui-config.json" 即可应用。请注意**备份原配置文件**。
 如果处理多个输入文件，必须 -j 和 -o （用来指定你现在使用的ssr配置文件）联合使用，才会生成 gui-config.json 配置文件，单独的 -j 只会生成去重的备份 json 文件 -- 这个文件不能直接作为 ssr 配置文件应用。
+
+## check_v2ray.py 工具
+
+配合 [v2ray](https://github.com/v2ray), [v2rayN https://github.com/2dust/v2rayN](https://github.com/2dust/v2rayN) 使用，对账号批量去重，测试，benchmark。
+使用很简单，放置文件 check_v2ray.py 到 v2rayN 目录（关闭 v2rayN 和 v2ray 与否都没问题，脚本会主动关闭），**以管理员或等同身份**执行，将生成一个包含去重、测速后的 guiNConfig_2018-xxxxxx.json 带时间戳的配置文件，把原文件备份，删除，将此文件改名为 guiNConfig.json。重新运行 v2rayN.exe
+可以看到每个账号别名前面都加上了类似这样的数字：
+* 0_0.68_ 这表示，经过10次连接到 Google 的测速，其中0次连接失败，平均每次获取 Google 的302首页需要0.68秒
+* 或者 9_9.99_HCR_，这表示，10次连接都没有成功，这个节点暂时无法使用（被反科学上网了），或者已经废弃。
+简单方便，选择数字最小的去使用就好了！
 
 ## no_sys_proxy.cmd, set_sys_proxy.cmd, show_sys_proxy.cmd  M$ windows 系统代理取消、设置、显示，方便的鼠标敲一下就搞定的命令行
 
