@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 __author__ = 'JZ'
-__homepage__ = 'https://github.com/Justsoos/ss-ssr-gadget'
+__webpage__ = 'https://github.com/Justsoos'
 
 import re
 import sys,os
