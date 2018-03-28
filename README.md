@@ -25,12 +25,14 @@ ss-ssr-v2ray-gadget
 
 ## check_v2ray.py 工具
 
-配合 [v2ray](https://github.com/v2ray), [v2rayN https://github.com/2dust/v2rayN](https://github.com/2dust/v2rayN) 使用，对账号批量去重，测试，benchmark。
-使用很简单，放置文件 check_v2ray.py 到 v2rayN 目录（关闭 v2rayN 和 v2ray 与否都没问题，脚本会主动关闭），**以管理员或等同身份**执行，将生成一个包含去重、测速后的 guiNConfig_2018-xxxxxx.json 带时间戳的配置文件，把原文件备份，删除，将此文件改名为 guiNConfig.json。重新运行 v2rayN.exe
+配合 [v2ray](https://github.com/v2ray), [v2rayN https://github.com/2dust/v2rayN](https://github.com/2dust/v2rayN) 使用，多进程，对账号批量去重，测试，benchmark。
+使用很简单，放置文件 check_v2ray.py 到 v2rayN 目录（关闭 v2rayN 和 v2ray 与否都没问题，脚本会主动关闭），**以管理员或等同身份**执行，将生成一个包含去重、测速后的 guiNConfig_2018-xxxxxx_.json 带时间戳的配置文件，把原文件备份，删除，将此文件改名为 guiNConfig.json。重新运行 v2rayN.exe
 可以看到每个账号别名前面都加上了类似这样的数字：
 * 0_0.68_ 这表示，经过10次连接到 Google 的测速，其中0次 (第一个数字) 连接失败，平均每次获取 Google 的302首页需要0.68秒 （第二个数字）
 * 或者 9_9.99_HCR_，这表示，10次连接都没有成功，这个节点暂时无法使用（被反科学上网了），或者已经废弃。
 简单方便，选择数字最小的去使用就好了！
+* -j选项，后接 json 格式配置文件名，支持多文件合并处理
+* -t选项，只测试，不保存文件
 
 暂时不支持 v2ray 下使用的 shadowsocks 账号。
 建议你 将 ss 导入到 ssr 下使用，ssr-csharp 有更强大的内置数据支持，参考这里: 
