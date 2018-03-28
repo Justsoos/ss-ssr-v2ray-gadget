@@ -16,6 +16,8 @@ import requests
 import argparse
 import subprocess
 import base64
+import select
+from glob import glob
 
 from pprint import pprint
 from requests.adapters import HTTPAdapter
@@ -167,7 +169,7 @@ def run_v(conf, t_conf):
 	cmd_line = 'v2ray.exe --config={}'.format(temp_file)
 	logging.debug('begin id: %s with port %s', users['id'], port)
 	try:
-		p = subprocess.Popen(cmd_line, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
+		p = subprocess.Popen(cmd_line, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
 	except:
 		raise
 	time.sleep(0.8)
@@ -216,7 +218,7 @@ def get_latency(port):
 
 def sub_proc(proc, single_json, t_conf):
 	proc, port, temp_file = run_v(single_json, t_conf)
-	print('proc what ?', proc)
+	print('process what ?', proc)
 	#logging.debug('process: %s', proc)
 	try:
 		perfect, latency = test_connect(port)
@@ -293,26 +295,12 @@ def multi_proc(configs):
 	
 	return configs_good, configs_bad, info
 
-def read_deDup(conf):
-
-	if conf:
-		file = conf
-	else:
-		file = 'guiNConfig.json'
-	try:
-		with open(file, 'r', encoding='utf-8') as f:
-			data = json.load(f)
-	except:
-		raise
-	vmess = data.get('vmess')
-	if not vmess or not isinstance(vmess, list):
-		raise ValueError('bad guiNConfig.json file...')
-
+def deDup(conf):
 	dest_list = []
 	dup_list = []
 	try:
-		for i, ei in enumerate(vmess):
-			for j, ej in enumerate(vmess[i+1:]):
+		for i, ei in enumerate(conf):
+			for j, ej in enumerate(conf[i+1:]):
 				if (
 					(ei['address'] == ej['address']) and
 					(int(ei['port']) == int(ej['port'])) and
@@ -334,8 +322,8 @@ def read_deDup(conf):
 	except KeyError as err:
 		print('The No.{} record seems wrong with {}...'.format((i+j), err))
 		raise
-	deDup_info = '**** All records: {}, found dups: {}, unique records: {}'.format(len(vmess), len(dup_list), len(dest_list))
-	return data, dest_list, dup_list, deDup_info
+	deDup_info = '**** All records: {}, found dups: {}, unique records: {}'.format(len(conf), len(dup_list), len(dest_list))
+	return dest_list, dup_list, deDup_info
 
 def get_free_tcp_port():
 	tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -360,17 +348,48 @@ def kill():
 	except:
 		pass
 
+def files(wildcard_file_args):
+	if wildcard_file_args:
+		file_list = (glob(name) for name in wildcard_file_args)
+		file_list = [i for j in file_list for i in j]
+		file_list = list(set(file_list))
+	else:
+		file_list = None
+	return file_list
+
+def main_dev():
+
+	global json_files
+	global uri_files
+	global only_test
+
+	parser = argparse.ArgumentParser( description='de-duplicate, merge, test, benchmark and backup tools for v2ray with v2rayN, M$ Windows')
+	parser.add_argument('-j', metavar='input JSON filenames', dest='json_files', default=False, type=str, nargs='+', help='Input json filenames')
+	parser.add_argument('-l', metavar='input Link filenames', dest='uri_files', default=False, type=str, nargs='+', help='Input uri link filenames')
+	parser.add_argument('-t', dest='only_test', action='store_true', default=False, help='Just test, no output file')
+	parser.add_argument('-v',action='version', version='0.2')
+	args = parser.parse_args()
+
+	json_files = files(args.json_files)
+	uri_files = files(args.uri_files)
+	only_test = args.only_test
+
+	if not args.json_files and not args.uri_files:
+		json_files = ['guiNConfig.json']
+
 def main():
 	socket.socket = socks.socksocket
 	socket.create_connection = rewrite_socks_dns
 
 	kill()
 
-	global t_conf
+	global json_files
+	global uri_files
 	global only_test
 
-	only_test = False
-	
+	main_dev()
+
+	global t_conf
 	t_conf = \
 	{
 		'log': {
@@ -478,11 +497,83 @@ def main():
 			}
 		}
 	}
-	
-	guiNConfig, conf, _, deDup_info = read_deDup(None)
-	
-	# conf = conf[:5]
 
+	t_guiNConfig = \
+		{
+			"inbound": [{
+				"localPort": 28080,
+				"protocol": "socks",
+				"udpEnabled": True
+			}],
+			"logEnabled": False,
+			"loglevel": "error",
+			"index": 78,
+			"vmess": [],
+			"muxEnabled": True,
+			"chinasites": False,
+			"chinaip": False,
+			"useragent": [],
+			"userdirect": [],
+			"userblock": [],
+			"kcpItem": {
+				"mtu": 1350,
+				"tti": 10,
+				"uplinkCapacity": 20,
+				"downlinkCapacity": 100,
+				"congestion": True,
+				"readBufferSize": 4,
+				"writeBufferSize": 4
+			},
+			"autoSyncTime": False,
+			"sysAgentEnabled": False,
+			"listenerType": 1,
+			"urlGFWList": ""
+		}
+	
+	configs = []
+	links = []
+	guiNConfig = None
+	data = None
+	vmess = None
+
+	if json_files:
+		try:
+			for i in json_files:
+				if not os.path.isfile(i):
+					print('****Bad file path or name: {} ...'.format(i))
+					break
+				else:
+					with open(i, 'r', encoding='utf-8') as f:
+						data = json.load(f)
+					if not data:
+						print('can not found specified format on {}'.format(i))
+						break
+
+				if isinstance(data, dict) and data.get('inbound') and data.get('vmess'):
+					vmess = data.get('vmess')
+					configs.extend(vmess)
+					guiNConfig = data
+				elif isinstance(data, list) and data[0].get('address'):
+					configs.extend(data)
+				else:
+					print('can not found specified format on {}'.format(i))
+		except:
+			raise
+
+	guiNConfig = t_guiNConfig if not guiNConfig else guiNConfig
+
+	if configs:
+		conf, _, deDup_info = deDup(configs)
+	else:
+		print('No legal data input...')
+		sys.exit()
+
+	print(deDup_info)
+	try:
+		input('**** Waiting for comfirm, Ctrl+C to interrupt or continue with Enter...')
+	except KeyboardInterrupt:
+		sys.exit()
+		
 	configs_good, configs_bad, _ = multi_proc(conf)
 
 	kill()
@@ -497,7 +588,7 @@ def main():
 		print(deDup_info)
 
 	if only_test:
-		print('deDuped records {}, good ones {}, bad ones {}.'.format(len(all_list), len(configs_good), len(configs_bad)))
+		print('**** Only test, result: deDuped records {}, good ones {}, bad ones {}.'.format(len(all_list), len(configs_good), len(configs_bad)))
 	else:
 		guiNConfig['vmess'] = all_list
 		guiNConfig_new = 'guiNConfig_{}_.json'.format(time.strftime('%Y-%m-%d_%H-%M-%S'))
