@@ -16,7 +16,7 @@ import requests
 import argparse
 import subprocess
 import base64
-import select
+
 from glob import glob
 
 from pprint import pprint
@@ -167,9 +167,9 @@ def run_v(conf, t_conf):
 		logging.debug('here missing missing: '.format(temp_file))
 
 	cmd_line = 'v2ray.exe --config={}'.format(temp_file)
-	logging.debug('begin id: %s with port %s', users['id'], port)
+	logging.debug('checking id: {} with port {}'.format(users['id'], port))
 	try:
-		p = subprocess.Popen(cmd_line, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL)
+		p = subprocess.Popen(cmd_line, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL)
 	except:
 		raise
 	time.sleep(0.8)
@@ -196,7 +196,7 @@ def test_connect(port):
 	return perfect, latency
 
 def get_latency(port):
-	test_urls = 'https://www.google.com/'
+	test_urls = 'https://www.bing.com/'
 	headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36'}
 	proxies = {}
 	proxies['https'] = 'socks5://127.0.0.1:{}'.format(port)
@@ -218,14 +218,17 @@ def get_latency(port):
 
 def sub_proc(proc, single_json, t_conf):
 	proc, port, temp_file = run_v(single_json, t_conf)
-	print('process what ?', proc)
-	#logging.debug('process: %s', proc)
+
 	try:
 		perfect, latency = test_connect(port)
 	except:
 		raise
 	
 	proc.kill()
+
+	logging.debug('process what ? {}'.format(proc))
+	stdout, stderr = proc.communicate()
+	logging.debug('std of process{}, {}'.format(stdout, stderr))
 
 	if not os.path.isfile(temp_file):
 		logging.debug('missing temp config file: {}'.format(temp_file))
@@ -503,7 +506,7 @@ def main():
 			"inbound": [{
 				"localPort": 28080,
 				"protocol": "socks",
-				"udpEnabled": True
+				"udpEnabled": False
 			}],
 			"logEnabled": False,
 			"loglevel": "error",
@@ -573,7 +576,7 @@ def main():
 		input('**** Waiting for comfirm, Ctrl+C to interrupt or continue with Enter...')
 	except KeyboardInterrupt:
 		sys.exit()
-		
+
 	configs_good, configs_bad, _ = multi_proc(conf)
 
 	kill()
