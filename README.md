@@ -28,7 +28,7 @@ ss-ssr-v2ray-gadget
 配合 [v2ray](https://github.com/v2ray), [v2rayN https://github.com/2dust/v2rayN](https://github.com/2dust/v2rayN) 使用，多进程，对账号批量去重，测试，benchmark。
 使用很简单，放置文件 check_v2ray.py 到 v2rayN 目录（关闭 v2rayN 和 v2ray 与否都没问题，脚本会主动关闭），**以管理员或等同身份**执行，将生成一个包含去重、测速后的 guiNConfig_2018-xxxxxx_.json 带时间戳的配置文件，把原文件备份，删除，将此文件改名为 guiNConfig.json。重新运行 v2rayN.exe
 可以看到每个账号别名前面都加上了类似这样的数字：
-* 0_0.68_ 这表示，经过10次连接到 Google 的测速，其中0次 (第一个数字) 连接失败，平均每次获取 Google 的302首页需要0.68秒 （第二个数字）
+* 0_0.68_ 这表示，经过10次连接到 ~~~***Google***~~~ www.bing.com 的测速，其中0次 (第一个数字) 连接失败，平均每次获取 ~~~***Google***~~~ 的302首页需要0.68秒 （第二个数字）
 * 或者 9_9.99_HCR_，这表示，10次连接都没有成功，这个节点暂时无法使用（被反科学上网了），或者已经废弃。
 简单方便，选择数字最小的去使用就好了！
 
@@ -40,7 +40,7 @@ ss-ssr-v2ray-gadget
 建议你 将 ss 导入到 ssr 下使用，ssr-csharp 有更强大的内置数据支持，参考这里: 
 [shadowsocksrr/shadowsocksr-csharp#33 (comment)](https://github.com/shadowsocksrr/shadowsocksr-csharp/issues/33#issuecomment-355440457)
 
-ss, ssr 的配置文件是扁平的，uri 也简单粗放，所有数据都可以列在一个二层树上列出来，v2ray 则完全不同，即便 v2rayN 用一个二层树文件，凑合表达，造成不同语义复用键值，而且没有一个通用标准配置文件可用。[逻辑狠乱，感觉还需要改很多 ...](https://github.com/v2ray/v2ray-core/issues/990)
+ss, ssr 的配置文件是扁平的，uri 也简单粗放，所有数据都可以列在一个二层树上列出来，v2ray 则完全不同，即便 v2rayN 用一个二层树文件，凑合表达，造成不同语义复用键值，而且没有一个通用标准配置文件可用。[逻辑很乱，感觉还需要改很多 ...](https://github.com/v2ray/v2ray-core/issues/990)
 
 ## no_sys_proxy.cmd, set_sys_proxy.cmd, show_sys_proxy.cmd  M$ windows 系统代理取消、设置、显示，方便的鼠标敲一下就搞定的命令行
 
