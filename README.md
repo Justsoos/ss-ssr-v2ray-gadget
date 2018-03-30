@@ -42,7 +42,7 @@ ss-ssr-v2ray-gadget
 
 ss, ssr 的配置文件是扁平的，uri 也简单粗放，所有数据都可以列在一个二层树上列出来，v2ray 则完全不同，即便 v2rayN 用一个二层树文件，凑合表达，造成不同语义复用键值，而且没有一个通用标准配置文件可用。[逻辑很乱，感觉还需要改很多 ...](https://github.com/v2ray/v2ray-core/issues/990)
 
-## no_sys_proxy.cmd, set_sys_proxy.cmd, show_sys_proxy.cmd  M$ windows 系统代理取消、设置、显示，方便的鼠标敲一下就搞定的命令行
+## no_sys_proxy.cmd, set_sys_proxy.cmd, show_sys_proxy.cmd  M$ windows ~~系统~~ WinHTTP 代理取消、设置、显示，方便的鼠标敲一下就搞定的命令行
 
 由于众多软件设计的美国佬的不知道专制而自由的神经病，比如 chrome browser 更新、内置 google translate 只走winhttp系统代理，[很多人迷惑为什么我设置了 chrome 的 http 和 socks 代理，却无法升级 chrome ？不能用 chrome 内置的 google 翻译？](https://github.com/feliscatus/switchyomega/issues/264) 是的，你需要设置 windows 系统代理(而且还是相当乱套的好几个代理...)，这些独立于浏览器之外进程需要走~~系统~~代理，他们并不走浏览器内设置的代理。
 
