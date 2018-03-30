@@ -28,7 +28,7 @@ ss-ssr-v2ray-gadget
 配合 [v2ray](https://github.com/v2ray), [v2rayN https://github.com/2dust/v2rayN](https://github.com/2dust/v2rayN) 使用，多进程，对账号批量去重，测试，benchmark。
 使用很简单，放置文件 check_v2ray.py 到 v2rayN 目录（关闭 v2rayN 和 v2ray 与否都没问题，脚本会主动关闭），**以管理员或等同身份**执行，将生成一个包含去重、测速后的 guiNConfig_2018-xxxxxx_.json 带时间戳的配置文件，把原文件备份，删除，将此文件改名为 guiNConfig.json。重新运行 v2rayN.exe
 可以看到每个账号别名前面都加上了类似这样的数字：
-* 0_0.68_ 这表示，经过10次连接到 ~~~***Google***~~~ www.bing.com 的测速，其中0次 (第一个数字) 连接失败，平均每次获取 ~~~***Google***~~~ www.bing.com 的302首页需要0.68秒 （第二个数字）
+* 0_0.68_ 这表示，经过10次连接到 Google 首页的测速，其中0次 (第一个数字) 连接失败，平均每次获取 Google 的302首页需要0.68秒 （第二个数字）
 * 或者 9_9.99_HCR_，这表示，10次连接都没有成功，这个节点暂时无法使用（被反科学上网了），或者已经废弃。
 简单方便，选择数字最小的去使用就好了！
 
@@ -44,6 +44,6 @@ ss, ssr 的配置文件是扁平的，uri 也简单粗放，所有数据都可�
 
 ## no_sys_proxy.cmd, set_sys_proxy.cmd, show_sys_proxy.cmd  M$ windows 系统代理取消、设置、显示，方便的鼠标敲一下就搞定的命令行
 
-由于众多软件设计的美国佬的不知道专制而自由的神经病，比如 chrome browser 更新、内置 google translate 只走winhttp系统代理，[很多人迷惑为什么我设置了 chrome 的 http 和 socks 代理，却无法升级 chrome ？不能用 chrome 内置的 google 翻译？](https://github.com/feliscatus/switchyomega/issues/264) 是的，你需要设置 windows 系统代理，这些独立于浏览器之外进程需要走系统代理，他们并不走浏览器内设置的代理。
+由于众多软件设计的美国佬的不知道专制而自由的神经病，比如 chrome browser 更新、内置 google translate 只走winhttp系统代理，[很多人迷惑为什么我设置了 chrome 的 http 和 socks 代理，却无法升级 chrome ？不能用 chrome 内置的 google 翻译？](https://github.com/feliscatus/switchyomega/issues/264) 是的，你需要设置 windows 系统代理(而且还是相当乱套的好几个代理...)，这些独立于浏览器之外进程需要走~~系统~~代理，他们并不走浏览器内设置的代理。
 
 其他工具待更新...
