@@ -5,7 +5,7 @@ __webpage__ = 'https://github.com/Justsoos'
 
 import re
 import sys,os
-import socks
+# import socks
 import socket
 import multiprocessing
 import threading
@@ -23,11 +23,10 @@ from pprint import pprint
 from requests.adapters import HTTPAdapter
 from multiprocessing import Pool
 
-logging.getLogger().setLevel(logging.DEBUG)
+#logging.getLogger().setLevel(logging.DEBUG)
 logging.debug('')
 
 def run_v(conf, t_conf):
-	port = get_free_tcp_port()
 	if int(conf.get('configType')) != 1:
 		return None
 	try:
@@ -151,7 +150,11 @@ def run_v(conf, t_conf):
 		t_conf['outbound']['streamSettings']['security'] = (conf.get('streamSecurity'), '')[conf.get('streamSecurity') == None]
 		t_conf['outbound']['protocol'] = 'vmess'
 
+		port = get_free_tcp_port()
+		if not port:
+			raise Exception('Error getting local port.')
 		t_conf['inbound']['port'] = int(port)
+		
 		t_conf['inbound']['listen'] = '127.0.0.1'
 		t_conf['inbound']['protocol'] = 'socks'
 		t_conf['inbound']['settings']['auth'] = 'noauth'
@@ -159,7 +162,7 @@ def run_v(conf, t_conf):
 	except:
 		raise
 	#remarks = conf.get('remarks', None)
-	temp_file = 'temp_file_{}.json'.format(int(round(time.time() * 1000)))
+	temp_file = 'temp_file_{}_{}.json'.format(int(round(time.time() * 1000)), port)
 	with open(temp_file, 'w') as f:
 		json.dump(t_conf, f)
 
@@ -196,10 +199,11 @@ def test_connect(port):
 	return perfect, latency
 
 def get_latency(port):
-	test_urls = 'https://www.bing.com/'
+	test_urls = 'https://www.google.com/'
 	headers = {'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36'}
 	proxies = {}
-	proxies['https'] = 'socks5://127.0.0.1:{}'.format(port)
+	proxies['http'] = 'socks5h://127.0.0.1:{}'.format(port)
+	proxies['https'] = 'socks5h://127.0.0.1:{}'.format(port)
 
 	start_time = time.time()
 	s = requests.Session()
@@ -228,7 +232,8 @@ def sub_proc(proc, single_json, t_conf):
 
 	logging.debug('process what ? {}'.format(proc))
 	stdout, stderr = proc.communicate()
-	logging.debug('std of process{}, {}'.format(stdout, stderr))
+	logging.debug('stdout of process{}'.format(stdout))
+	logging.debug('stdERR of process{}'.format(stderr))
 
 	if not os.path.isfile(temp_file):
 		logging.debug('missing temp config file: {}'.format(temp_file))
@@ -381,8 +386,8 @@ def main_dev():
 		json_files = ['guiNConfig.json']
 
 def main():
-	socket.socket = socks.socksocket
-	socket.create_connection = rewrite_socks_dns
+	# socket.socket = socks.socksocket
+	# socket.create_connection = rewrite_socks_dns
 
 	kill()
 
