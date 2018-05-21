@@ -86,7 +86,7 @@ def main_dev():
 	if (not args.input_files) and (not args.target) and (os.path.exists('gui-config.json')):
 		input_files = ['gui-config.json']
 		target = 'gui-config.json'
-		print('*** No input file name, I will looking for "gui-config.json" file in current dir and do sth...')
+		print('*** No input file name, looking for "gui-config.json" file in current dir and do sth...')
 	elif (not args.input_files) and args.target and (os.path.exists(args.target[0])):
 		input_files = [args.target[0]]
 		target = args.target[0]
