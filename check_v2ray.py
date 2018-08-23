@@ -23,7 +23,7 @@ from pprint import pprint
 from requests.adapters import HTTPAdapter
 from multiprocessing import Pool
 
-#logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
 logging.debug('')
 
 def run_v(conf, t_conf):
@@ -181,8 +181,9 @@ def run_v(conf, t_conf):
 def test_connect(port):
 	perfect = 9
 	sum_r = 0
-	time.sleep(4)
+	time.sleep(2)
 	get_latency(port)
+	time.sleep(2)
 	for i in range(1,10):
 		time.sleep(0.1)
 		r, p = get_latency(port)
@@ -246,7 +247,7 @@ def sub_proc(proc, single_json, t_conf):
 def multi_proc(configs):
 	global t_conf
 	multiprocessing.freeze_support()
-	proc = multiprocessing.Pool(8)
+	proc = multiprocessing.Pool(16)
 
 	proc_result = []
 	if isinstance(configs, dict):
@@ -287,7 +288,7 @@ def multi_proc(configs):
 			else:
 				remarks = i[0].get('remarks')
 			remarks = '{}_{}_{}'.format(i[1], i[2], remarks)
-			i[0]['remarks'] = remarks[:40]
+			i[0]['remarks'] = remarks[:60]
 			configs_good.append(i[0])
 
 	if configs_bad_temp:
@@ -298,7 +299,7 @@ def multi_proc(configs):
 			else:
 				remarks = k.get('remarks')
 			remarks = '{}_{}_HCR_{}'.format('9', '9.99', remarks)
-			k['remarks'] = remarks[:40]
+			k['remarks'] = remarks[:60]
 			configs_bad.append(k)
 	
 	return configs_good, configs_bad, info
@@ -306,8 +307,13 @@ def multi_proc(configs):
 def deDup(conf):
 	dest_list = []
 	dup_list = []
+	global other_list
+	other_list = []
 	try:
 		for i, ei in enumerate(conf):
+			if int(ei.get('configType')) != 1:
+				other_list.append(ei)
+				continue
 			for j, ej in enumerate(conf[i+1:]):
 				if (
 					(ei['address'] == ej['address']) and
@@ -323,14 +329,14 @@ def deDup(conf):
 					dup_list.append(ei)
 					dest_found = False
 					break
-			else:
-				dest_found = True
+				else:
+					dest_found = True
 			if dest_found:
 				dest_list.append(ei)
 	except KeyError as err:
 		print('The No.{} record seems wrong with {}...'.format((i+j), err))
 		raise
-	deDup_info = '**** All records: {}, found dups: {}, unique records: {}'.format(len(conf), len(dup_list), len(dest_list))
+	deDup_info = '**** All records: {}, found dups: {}, unique VMESS records: {}, non VMESS records: {}'.format(len(conf), len(dup_list), len(dest_list), len(other_list))
 	return dest_list, dup_list, deDup_info
 
 def get_free_tcp_port():
@@ -389,13 +395,14 @@ def main():
 	# socket.socket = socks.socksocket
 	# socket.create_connection = rewrite_socks_dns
 
-	kill()
-
 	global json_files
 	global uri_files
 	global only_test
+	global other_list
 
 	main_dev()
+
+	kill()
 
 	global t_conf
 	t_conf = \
@@ -444,7 +451,7 @@ def main():
 				'wsSettings': None
 			},
 			'mux': {
-				'enabled': True
+				'enabled': False
 			}
 		},
 		'inboundDetour': None,
@@ -470,7 +477,7 @@ def main():
 			'servers': [
 				'8.8.8.8',
 				'8.8.4.4',
-				'localhost'
+				'114.114.114.114'
 			]
 		},
 		'routing': {
@@ -517,7 +524,7 @@ def main():
 			"loglevel": "error",
 			"index": 78,
 			"vmess": [],
-			"muxEnabled": True,
+			"muxEnabled": False,
 			"chinasites": False,
 			"chinaip": False,
 			"useragent": [],
@@ -591,6 +598,8 @@ def main():
 		all_list.extend(configs_good)
 	if configs_bad:
 		all_list.extend(configs_bad)
+	if other_list:
+		all_list.extend(other_list)
 
 	if deDup_info:
 		print(deDup_info)
