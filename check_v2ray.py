@@ -144,10 +144,23 @@ def run_v(conf, t_conf):
 			else:
 				t_conf['outbound']['streamSettings']['tcpSettings']['header']['type'] = (conf.get('headerType'), None)[conf.get('headerType') == 'none']
 				t_conf['outbound']['streamSettings']['tcpSettings']['header']['request']['headers']['Host'] = conf.get('requestHost', '').split(',')
+
+		elif network == 'h2' or network == 'http':
+
+			t_conf['outbound']['streamSettings']['httpSettings'] = \
+				{
+					'path': None,
+					'host': []
+				}
+
+			t_conf['outbound']['streamSettings']['httpSettings']['path'] = conf.get('path')
+			t_conf['outbound']['streamSettings']['httpSettings']['Host'] = list(conf.get('requestHost'))
+
 		else:
-			raise
+			raise NameError("unkonwn network", network)
 
 		t_conf['outbound']['streamSettings']['security'] = (conf.get('streamSecurity'), '')[conf.get('streamSecurity') == None]
+
 		t_conf['outbound']['protocol'] = 'vmess'
 
 		port = get_free_tcp_port()
